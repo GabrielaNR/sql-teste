@@ -1,0 +1,109 @@
+CREATE DATABASE ecommerce;
+USE ecommerce;
+
+--Criação da tabela de Clientes
+CREATE TABLE clients (
+    idClient INT PRIMARY KEY AUTO_INCREMENT,
+    fName VARCHAR(20) NOT NULL,
+    lName VARCHAR(20),
+    cpf CHAR(11),
+    cnpj CHAR(15),
+    address VARCHAR(30),
+    email VARCHAR(100) NOT NULL UNIQUE,
+    constraint unique_cpf_client unique(cpf)
+    constraint unique_cnpj_client unique(cnpj)
+);
+
+--Criação da tabela de Produtos
+CREATE TABLE products (
+    idProduct INT PRIMARY KEY AUTO_INCREMENT,
+    pName VARCHAR(100) NOT NULL,
+    classification_kids BOOL,
+    category ENUM('Eletrônico', 'Brinquedo', 'Vestimenta', 'Alimentos') NOT NULL,
+    avaliacao FLOAT DEFAULT 0,
+    size VARCHAR(10),
+    constraint unique_cpf_client unique(cpf)
+);
+
+--Criação da tabela de Pedidos
+CREATE TABLE orders (
+    idOrder INT PRIMARY KEY AUTO_INCREMENT,
+    idOrderClient INT,
+    orderStatus ENUM('Cancelado', 'Confirmado', 'Em processamento') NOT NULL,
+    orderDescription VARCHAR(255),
+    sendValue FLOAT DEFAULT 10,
+    DataPedido DATE NOT NULL,
+    Total DECIMAL(10, 2) NOT NULL,
+    constraint fk_orders_client FOREIGN KEY (idOrderClient) REFERENCES clients(idClient)
+);
+
+--Criação da tabela de Pagamentos
+CREATE TABLE payment (
+    idClient INT,
+    idPayment INT,
+    typePayment ENUM('Boleto', 'Cartão', 'Pix'),
+    PRIMARY KEY (idClient, idPayment)
+
+);
+
+--Criação da tabela de Estoque
+CREATE TABLE storage (
+    idStorage INT PRIMARY KEY AUTO_INCREMENT,
+    storageLocation VARCHAR(255),
+    quantity INT DEFAULT 0
+);
+
+--Criação da tabela Fornecedor
+CREATE TABLE supplier(
+    idSupplier INT PRIMARY KEY AUTO_INCREMENT,
+    socialName VARCHAR(255) NOT NULL,
+    cnpj CHAR(15) NOT NULL,
+    contact CHAR(11) NOT NULL,
+    CONSTRAINT unique_supplier UNIQUE (cnpj)
+
+);
+
+--Criação de tabela Vendedor
+CREATE TABLE seller(
+    idSeller INT PRIMARY KEY AUTO_INCREMENT,
+    socialName VARCHAR(255) NOT NULL,
+    cnpj CHAR(15),
+    cpf CHAR(11),
+    contact CHAR(11) NOT NULL,
+    CONSTRAINT unique_cnpj_seller UNIQUE (cnpj)
+    CONSTRAINT unique_cpf_seller UNIQUE (cpf)
+
+);
+
+CREATE TABLE productSeller(
+    idPSeller INT,
+    idProduct INT,
+    prodQuantity INT DEFAULT 1,
+    PRIMARY KEY (idPSeller, idProduct),
+    constraint fk_product_seller FOREIGN KEY (idPSeller) REFERENCES seller(idSeller),
+    constraint fk_product_product FOREIGN KEY (idProduct) REFERENCES products(idProduct)
+
+);
+
+CREATE TABLE productOrder(
+    idPOProduct INT,
+    idPOorder INT,
+    poQuantity INT DEFAULT 1,
+    poStatus ENUM('Disponível', 'Sem estoque') DEFAULT 'Disponível',
+    PRIMARY KEY (idPOProduct, idPOorder),
+    constraint fk_product_seller FOREIGN KEY (idPOProduct) REFERENCES product(idProduct),
+    constraint fk_product_product FOREIGN KEY (idPOorder) REFERENCES products(idOrder)
+  
+    
+
+
+--Criação da tabela de Itens de Pedido
+CREATE TABLE ItensPedido (
+    ItemID INT PRIMARY KEY AUTO_INCREMENT,
+    PedidoID INT,
+    ProdutoID INT,
+    Quantidade INT NOT NULL,
+    Subtotal DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (PedidoID) REFERENCES Pedidos(PedidoID),
+    FOREIGN KEY (ProdutoID) REFERENCES Produtos(ProdutoID)
+);
